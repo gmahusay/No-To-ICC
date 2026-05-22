@@ -31,7 +31,7 @@ export function drawMap(ctx, frames = 0, gameState = 'start', planeState = null)
     }
 
     // Draw the path
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0)'; // Slate 700
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0)'; // Slate 700 
     ctx.lineWidth = cellSize; // Path width equal to cell size
     ctx.lineCap = 'butt';
     ctx.lineJoin = 'miter';
