@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No To ICC - Tower Defense</title>
+    <meta name="description" content="Protect the target from law enforcement in this tower defense game.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Main Game Canvas -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- HUD (Heads Up Display) -->
+        <div id="hud">
+            <div class="hud-item">
+                <span class="label">Funds:</span>
+                <span id="moneyDisplay">₱100</span>
+            </div>
+            <div class="hud-item">
+                <span class="label">Wave:</span>
+                <span id="waveDisplay">1</span>
+            </div>
+            <div class="hud-item">
+                <span class="label">Lives:</span>
+                <span id="livesDisplay">1</span>
+            </div>
+        </div>
+
+        <!-- Toolbar for placing defenders -->
+        <div id="toolbar">
+            <div class="tower-btn" id="btn-protester" data-type="protester">
+                <canvas class="tower-icon-canvas" id="icon-protester" width="56" height="56"></canvas>
+                <span>Protester</span>
+                <span class="cost">₱50</span>
+            </div>
+            <div class="tower-btn" id="btn-lawyer" data-type="lawyer">
+                <canvas class="tower-icon-canvas" id="icon-lawyer" width="56" height="56"></canvas>
+                <span>Lawyer</span>
+                <span class="cost">₱100</span>
+            </div>
+            <div class="tower-btn" id="btn-security" data-type="security">
+                <canvas class="tower-icon-canvas" id="icon-security" width="56" height="56"></canvas>
+                <span>Security</span>
+                <span class="cost">₱200</span>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="overlay">
+            <h1>No To ICC</h1>
+            <p>Place defenders to protect the Senator from Operatives trying to extradite them!</p>
+            <button id="startBtn" class="btn">Start Game</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="overlay hidden">
+            <h1 class="red-text">Target Extradited!</h1>
+            <p>The authorities have taken the target away.</p>
+            <button id="restartBtn" class="btn">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Audio Background Music (Add your music.mp3 file to the folder) -->
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Scripts (Using ES Modules for clean separation) -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>

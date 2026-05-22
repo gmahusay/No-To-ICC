@@ -1,0 +1,221 @@
+:root {
+    --bg-color: #0f172a; /* Slate 900 */
+    --canvas-bg: #1e293b; /* Slate 800 */
+    --text-primary: #f8fafc; /* Slate 50 */
+    --accent: #3b82f6; /* Blue 500 */
+    --accent-hover: #2563eb; /* Blue 600 */
+    --danger: #ef4444; /* Red 500 */
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    gap: 12px;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px 12px 16px 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    background-color: var(--canvas-bg);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+canvas {
+    display: block;
+    width: 800px;
+    height: 600px;
+    flex-shrink: 0;
+}
+
+/* HUD Styling - Glassmorphism */
+#hud {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    gap: 15px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    z-index: 10;
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+}
+
+.hud-item .label {
+    color: #94a3b8; /* Slate 400 */
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#moneyDisplay { color: #10b981; } /* Emerald 500 */
+#livesDisplay { color: var(--danger); }
+
+/* Toolbar Styling — sits below the canvas */
+#toolbar {
+    display: flex;
+    gap: 10px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    border-radius: 0 0 16px 16px;
+    border: 1px solid var(--glass-border);
+    border-top: none;
+    width: 800px;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tower-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    width: 90px;
+    height: 110px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    padding-bottom: 6px;
+    overflow: hidden;
+}
+
+.tower-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    border-color: var(--glass-border);
+}
+
+.tower-btn.selected {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+.tower-icon-canvas {
+    width: 56px;
+    height: 56px;
+    display: block;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.tower-btn span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-top: 2px;
+    line-height: 1;
+}
+
+.tower-btn .cost {
+    font-size: 0.68rem;
+    color: #10b981;
+    margin-top: 2px;
+}
+
+/* Overlays (Start & Game Over) */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#startScreen {
+    background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.85)), url('landing_bg.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.overlay h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #f8fafc, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.overlay h1.red-text {
+    background: linear-gradient(135deg, #fca5a5, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.overlay p {
+    font-size: 1.1rem;
+    color: #cbd5e1;
+    margin-bottom: 30px;
+    max-width: 80%;
+    text-align: center;
+}
+
+.btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
+}
+
+.btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
