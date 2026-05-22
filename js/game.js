@@ -2,6 +2,8 @@ import { drawMap, pathWaypoints } from './map.js';
 import { spawnEnemy } from './enemies.js';
 import { Projectile } from './projectiles.js';
 import { GameOverAnimation } from './animation.js';
+import { audio } from './audio.js';
+
 
 class Particle {
     constructor(x, y, color) {
@@ -142,6 +144,7 @@ export class Game {
                     this.money += e.reward;
                     this.updateHUD();
                     this.enemies.splice(i, 1);
+                    audio.playEnemyDefeat();
                 } 
                 // Reached Target
                 else if (e.hasReachedTarget()) {
@@ -168,6 +171,49 @@ export class Game {
         for (let i = 0; i < 8; i++) {
             this.particles.push(new Particle(x, y, color));
         }
+        audio.playHit();
+    }
+
+    playAwfulSound() {
+        // Mute regular game audio
+        audio.mute();
+
+        // Stop background music
+        const bgMusic = document.getElementById('bgMusic');
+        if (bgMusic) {
+            bgMusic.pause();
+        }
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        // Play an awful descending dissonant chord (tritone)
+        const playOsc = (freq, type, startTime, duration) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, startTime);
+            osc.frequency.exponentialRampToValueAtTime(freq / 2, startTime + duration);
+            
+            gain.gain.setValueAtTime(0.2, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        };
+
+        const now = ctx.currentTime;
+        // First awful buzz
+        playOsc(150, 'sawtooth', now, 1.5);
+        playOsc(212, 'square', now, 1.5);
+        
+        // Second part
+        playOsc(100, 'sawtooth', now + 0.5, 2.0);
+        playOsc(141, 'square', now + 0.5, 2.0);
     }
 
     triggerGameOver() {
@@ -176,6 +222,7 @@ export class Game {
         this.state = 'animating_gameover';
         const targetPos = pathWaypoints[pathWaypoints.length - 1];
         this.gameOverAnimation = new GameOverAnimation(targetPos.x, targetPos.y);
+        this.playAwfulSound();
     }
 
     placeDefender(DefenderClass, x, y, typeInfo) {

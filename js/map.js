@@ -14,7 +14,7 @@ export const pathWaypoints = [
 
 // Load background image
 const bgImage = new Image();
-bgImage.src = 'senate_map_bg.png';
+bgImage.src = 'senate_map_bg1.png';
 let bgLoaded = false;
 bgImage.onload = () => bgLoaded = true;
 
@@ -23,15 +23,15 @@ export function drawMap(ctx, frames = 0, gameState = 'start', planeState = null)
     if (bgLoaded) {
         ctx.drawImage(bgImage, 0, 0, mapWidth, mapHeight);
         // Slightly dim the background so the path and characters stand out better
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.5)';
+        ctx.fillStyle = 'rgba(15, 23, 42, .1)';
         ctx.fillRect(0, 0, mapWidth, mapHeight);
     } else {
-        ctx.fillStyle = '#1e293b'; // Slate 800
+        ctx.fillStyle = '#fff'; // Slate 800 
         ctx.fillRect(0, 0, mapWidth, mapHeight);
     }
 
     // Draw the path
-    ctx.strokeStyle = '#334155'; // Slate 700
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0)'; // Slate 700
     ctx.lineWidth = cellSize; // Path width equal to cell size
     ctx.lineCap = 'butt';
     ctx.lineJoin = 'miter';
@@ -44,7 +44,7 @@ export function drawMap(ctx, frames = 0, gameState = 'start', planeState = null)
     ctx.stroke();
     
     // Draw grid overlay for placement aesthetics
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0)';
     ctx.lineWidth = 1;
     for(let y = 0; y < mapHeight; y += cellSize) {
         ctx.beginPath(); 

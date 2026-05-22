@@ -1,3 +1,5 @@
+import { audio } from './audio.js';
+
 export const defenderTypes = {
     protester: { cost: 50, range: 100, damage: 20, fireRate: 60, color: '#3b82f6', radius: 15 },
     lawyer: { cost: 100, range: 150, damage: 40, fireRate: 90, color: '#8b5cf6', radius: 18 },
@@ -453,5 +455,14 @@ export class Defender {
         const projY = this.y + Math.sin(angle) * this.radius;
         
         projectiles.push(new ProjectileClass(projX, projY, this.target, this.damage, this.color, this.type));
+
+        // Play shot sound effect
+        if (this.type === 'protester') {
+            audio.playProtesterShot();
+        } else if (this.type === 'lawyer') {
+            audio.playLawyerShot();
+        } else if (this.type === 'security') {
+            audio.playSecurityShot();
+        }
     }
 }

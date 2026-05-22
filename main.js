@@ -1,5 +1,6 @@
 import { Game } from './js/game.js';
 import { Defender, defenderTypes } from './js/defenders.js';
+import { audio } from './js/audio.js';
 
 // Setup Canvas
 const canvas = document.getElementById('gameCanvas');
@@ -56,6 +57,8 @@ animate();
 
 // UI Event Listeners
 document.getElementById('startBtn').addEventListener('click', () => {
+    audio.unmute();
+    audio.resume();
     game.start();
     const bgMusic = document.getElementById('bgMusic');
     bgMusic.volume = 0.4;
@@ -63,6 +66,8 @@ document.getElementById('startBtn').addEventListener('click', () => {
 });
 
 document.getElementById('restartBtn').addEventListener('click', () => {
+    audio.unmute();
+    audio.resume();
     game.start();
     const bgMusic = document.getElementById('bgMusic');
     bgMusic.currentTime = 0;
@@ -98,6 +103,9 @@ canvas.addEventListener('click', (e) => {
     // Check if player has enough money before placing
     if (game.money >= typeInfo.cost) {
         const success = game.placeDefender(Defender, x, y, { id: selectedDefenderType, ...typeInfo });
+        if (success) {
+            audio.playPlace();
+        }
     } else {
         // Flash money display red
         const moneyDisplay = document.getElementById('moneyDisplay');
