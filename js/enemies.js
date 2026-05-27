@@ -1,4 +1,4 @@
-import { pathWaypoints } from './map.js';
+import { pathWaypoints } from './map.js?v=3';
 
 export class Enemy {
     constructor(type, x, y, health, speed, color, reward) {
@@ -18,6 +18,9 @@ export class Enemy {
         this.originalSpeed = speed;
         this.slowTimer = 0;
         this.stunTimer = 0;
+        this.retreating = false;
+        this.isRetreatingToStart = false;
+        this.offScreenWaitTimer = 0;
     }
 
     applyEffect(type, duration) {
@@ -25,6 +28,9 @@ export class Enemy {
             this.slowTimer = Math.max(this.slowTimer, duration);
         } else if (type === 'stun') {
             this.stunTimer = Math.max(this.stunTimer, duration);
+        } else if (type === 'retreat') {
+            this.retreating = true;
+            this.isRetreatingToStart = true;
         }
     }
 
@@ -42,6 +48,45 @@ export class Enemy {
         if (this.slowTimer > 0) {
             this.slowTimer--;
             currentSpeed *= 0.5; // 50% slower
+        }
+
+        if (this.offScreenWaitTimer > 0) {
+            this.offScreenWaitTimer--;
+            if (this.offScreenWaitTimer <= 0) {
+                this.retreating = false;
+                this.waypointIndex = 1;
+            }
+            return;
+        }
+
+        if (this.retreating) {
+            // Target the previous waypoint
+            let prevIndex = this.waypointIndex - 1;
+            if (prevIndex < 0) prevIndex = 0;
+            
+            const target = pathWaypoints[prevIndex];
+            const dx = target.x - this.x;
+            const dy = target.y - this.y;
+            const distance = Math.hypot(dx, dy);
+            
+            if (distance < currentSpeed) {
+                this.x = target.x;
+                this.y = target.y;
+                this.distanceTraveled -= distance;
+                
+                if (this.waypointIndex > 1) {
+                    this.waypointIndex--;
+                } else if (this.waypointIndex === 1 && prevIndex === 0) {
+                    // Reached the start position! Hide and wait 2 seconds (120 frames)
+                    this.offScreenWaitTimer = 120;
+                    this.isRetreatingToStart = false; // Out of frame now
+                }
+            } else {
+                this.x += (dx / distance) * currentSpeed;
+                this.y += (dy / distance) * currentSpeed;
+                this.distanceTraveled -= currentSpeed;
+            }
+            return; // Skip normal movement
         }
 
         const target = pathWaypoints[this.waypointIndex];
@@ -62,6 +107,8 @@ export class Enemy {
     }
 
     draw(ctx) {
+        if (this.offScreenWaitTimer > 0) return; // Don't draw if hiding off-screen
+
         ctx.save();
         ctx.translate(this.x, this.y);
 
@@ -104,6 +151,11 @@ export class Enemy {
             ctx.fill();
         } else if (this.slowTimer > 0) {
             ctx.fillStyle = '#93c5fd'; // light blue for slow
+            ctx.beginPath();
+            ctx.arc(this.x, this.y - 42, 3, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (this.retreating) {
+            ctx.fillStyle = '#c084fc'; // purple for retreat
             ctx.beginPath();
             ctx.arc(this.x, this.y - 42, 3, 0, Math.PI * 2);
             ctx.fill();

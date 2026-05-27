@@ -1,6 +1,6 @@
-import { Game } from './js/game.js';
-import { Defender, defenderTypes } from './js/defenders.js';
-import { audio } from './js/audio.js';
+import { Game } from './js/game.js?v=6';
+import { Defender, defenderTypes } from './js/defenders.js?v=3';
+import { audio } from './js/audio.js?v=3';
 
 // Setup Canvas
 const canvas = document.getElementById('gameCanvas');
@@ -46,6 +46,42 @@ function initToolbarIcons() {
 
 initToolbarIcons();
 
+// ── Draw Supreme Court Icon ──
+function initPowerIcon() {
+    const iconCanvas = document.getElementById('icon-power-bomb');
+    if (!iconCanvas) return;
+    const ctx = iconCanvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, 48, 48);
+    
+    ctx.save();
+    ctx.translate(24, 24);
+    ctx.rotate(-Math.PI / 4);
+    
+    // Handle
+    ctx.fillStyle = '#92400e';
+    ctx.fillRect(-3, -5, 6, 20);
+    
+    // Head
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-12, -12, 24, 10);
+    
+    // Head ends
+    ctx.fillStyle = '#92400e';
+    ctx.beginPath();
+    ctx.roundRect(-15, -11, 30, 8, 2);
+    ctx.fill();
+    
+    ctx.restore();
+    
+    // Strike lines
+    ctx.strokeStyle = '#fca5a5';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(12, 36); ctx.lineTo(6, 42); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(36, 36); ctx.lineTo(42, 42); ctx.stroke();
+}
+initPowerIcon();
+
 // Game Loop
 function animate() {
     game.update();
@@ -60,6 +96,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
     audio.unmute();
     audio.resume();
     game.start();
+    document.getElementById('power-toolbar').style.display = 'flex';
     const bgMusic = document.getElementById('bgMusic');
     bgMusic.volume = 0.4;
     bgMusic.play().catch(e => console.log('Music play failed (add music.mp3 to the folder).', e));
@@ -69,6 +106,15 @@ document.getElementById('restartBtn').addEventListener('click', () => {
     audio.unmute();
     audio.resume();
     game.start();
+    document.getElementById('power-toolbar').style.display = 'flex';
+    
+    // Reset Supreme Court Power Bomb
+    scCooldownTimer = 0;
+    if (scCooldownInterval) clearInterval(scCooldownInterval);
+    if (scActiveCheckInterval) clearInterval(scActiveCheckInterval);
+    updateScCooldownUI();
+    document.getElementById('btn-supreme-court').classList.remove('disabled');
+
     const bgMusic = document.getElementById('bgMusic');
     bgMusic.currentTime = 0;
     bgMusic.volume = 0.4;
@@ -115,4 +161,59 @@ canvas.addEventListener('click', (e) => {
         }, 500);
     }
 });
+
+// Power Bomb Interaction
+let scCooldownTimer = 0;
+let scCooldownInterval = null;
+let scActiveCheckInterval = null;
+const scBtn = document.getElementById('btn-supreme-court');
+const scCooldownDisplay = document.getElementById('sc-cooldown');
+
+scBtn.addEventListener('click', () => {
+    if (game.state !== 'playing' || scBtn.classList.contains('disabled')) return;
+
+    // Activate the Supreme Court effect
+    game.activateSupremeCourt();
+
+    scBtn.classList.add('disabled');
+
+    // If there are no enemies, start cooldown immediately
+    if (game.enemies.length === 0) {
+        startScCooldown();
+    } else {
+        scCooldownDisplay.innerText = 'Active';
+        if (scActiveCheckInterval) clearInterval(scActiveCheckInterval);
+        
+        // Wait until all enemies have reached the start (out of frame)
+        scActiveCheckInterval = setInterval(() => {
+            if (!game.isAnyEnemyRetreatingToStart()) {
+                clearInterval(scActiveCheckInterval);
+                startScCooldown();
+            }
+        }, 100);
+    }
+});
+
+function startScCooldown() {
+    scCooldownTimer = 60;
+    updateScCooldownUI();
+
+    if (scCooldownInterval) clearInterval(scCooldownInterval);
+    scCooldownInterval = setInterval(() => {
+        scCooldownTimer--;
+        updateScCooldownUI();
+        if (scCooldownTimer <= 0) {
+            clearInterval(scCooldownInterval);
+            scBtn.classList.remove('disabled');
+        }
+    }, 1000);
+}
+
+function updateScCooldownUI() {
+    if (scCooldownTimer > 0) {
+        scCooldownDisplay.innerText = `${scCooldownTimer}s`;
+    } else {
+        scCooldownDisplay.innerText = 'Ready';
+    }
+}
 

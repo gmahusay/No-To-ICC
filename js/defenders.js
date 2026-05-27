@@ -1,4 +1,4 @@
-import { audio } from './audio.js';
+import { audio } from './audio.js?v=3';
 
 export const defenderTypes = {
     protester: { cost: 50, range: 100, damage: 20, fireRate: 60, color: '#3b82f6', radius: 15 },

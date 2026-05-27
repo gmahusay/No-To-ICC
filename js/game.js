@@ -1,8 +1,8 @@
-import { drawMap, pathWaypoints } from './map.js';
-import { spawnEnemy } from './enemies.js';
-import { Projectile } from './projectiles.js';
-import { GameOverAnimation } from './animation.js';
-import { audio } from './audio.js';
+import { drawMap, pathWaypoints } from './map.js?v=3';
+import { spawnEnemy } from './enemies.js?v=5';
+import { Projectile } from './projectiles.js?v=3';
+import { GameOverAnimation } from './animation.js?v=3';
+import { audio } from './audio.js?v=3';
 
 
 class Particle {
@@ -51,6 +51,7 @@ export class Game {
         
         this.frames = 0;
         this.spawnTimer = 100;
+        this.spawningPaused = false;
         
         this.gameOverAnimation = null;
         
@@ -68,6 +69,7 @@ export class Game {
         this.particles = [];
         this.frames = 0;
         this.spawnTimer = 100;
+        this.spawningPaused = false;
         this.updateHUD();
         document.getElementById('startScreen').classList.add('hidden');
         document.getElementById('gameOverScreen').classList.add('hidden');
@@ -86,11 +88,18 @@ export class Game {
         drawMap(this.ctx, this.frames, this.state, planeState);
 
         if (this.state === 'playing') {
-            // Spawn Enemies
-            this.spawnTimer--;
-            if (this.spawnTimer <= 0) {
-                this.enemies.push(spawnEnemy(this.wave));
-                this.spawnTimer = Math.max(30, 150 - (this.wave * 10)); // Spawn faster over waves
+            // Check if enemies are done retreating to start
+            if (this.spawningPaused && !this.isAnyEnemyRetreatingToStart()) {
+                this.spawningPaused = false;
+            }
+
+            if (!this.spawningPaused) {
+                // Spawn Enemies
+                this.spawnTimer--;
+                if (this.spawnTimer <= 0) {
+                    this.enemies.push(spawnEnemy(this.wave));
+                    this.spawnTimer = Math.max(30, 150 - (this.wave * 10)); // Spawn faster over waves
+                }
             }
 
             // Increase wave every ~20 seconds (1200 frames at 60fps)
@@ -236,9 +245,50 @@ export class Game {
         return false;
     }
 
+    activateSupremeCourt() {
+        if (this.state !== 'playing') return;
+        
+        // Play a sound
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => audio.playHit(), i * 100);
+        }
+
+        // Apply retreat to all current enemies
+        for (let e of this.enemies) {
+            e.applyEffect('retreat');
+        }
+        
+        // Pause new enemy spawns until they are out of frame
+        if (this.enemies.length > 0) {
+            this.spawningPaused = true;
+        }
+        
+        // Optional screen flash
+        const flash = document.createElement('div');
+        flash.style.position = 'absolute';
+        flash.style.top = '0';
+        flash.style.left = '0';
+        flash.style.width = '100%';
+        flash.style.height = '100%';
+        flash.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+        flash.style.zIndex = '100';
+        flash.style.pointerEvents = 'none';
+        flash.style.transition = 'opacity 0.5s ease-out';
+        document.getElementById('game-container').appendChild(flash);
+        
+        // Trigger reflow
+        flash.offsetWidth;
+        flash.style.opacity = '0';
+        setTimeout(() => flash.remove(), 500);
+    }
+
     updateHUD() {
         document.getElementById('moneyDisplay').innerText = `₱${this.money}`;
         document.getElementById('waveDisplay').innerText = this.wave;
         document.getElementById('livesDisplay').innerText = this.lives;
+    }
+
+    isAnyEnemyRetreatingToStart() {
+        return this.enemies.some(e => e.isRetreatingToStart);
     }
 }

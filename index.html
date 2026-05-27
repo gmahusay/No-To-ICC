@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>No To ICC - Tower Defense</title>
     <meta name="description" content="Protect the target from law enforcement in this tower defense game.">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
 </head>
 <body>
     <div id="game-container">
@@ -50,6 +51,15 @@
             </div>
         </div>
 
+        <!-- Power Bomb Toolbar -->
+        <div id="power-toolbar" style="display: none;">
+            <div class="power-btn" id="btn-supreme-court">
+                <canvas class="power-icon-canvas" id="icon-power-bomb" width="48" height="48"></canvas>
+                <span>Supreme Court</span>
+                <span class="cooldown" id="sc-cooldown">Ready</span>
+            </div>
+        </div>
+
         <!-- Start Screen -->
         <div id="startScreen" class="overlay">
             <h1>No To ICC</h1>
@@ -71,6 +81,6 @@
     </audio>
 
     <!-- Scripts (Using ES Modules for clean separation) -->
-    <script type="module" src="main.js"></script>
+    <script type="module" src="main.js?v=8"></script>
 </body>
 </html>
